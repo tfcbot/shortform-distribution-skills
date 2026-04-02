@@ -27,7 +27,7 @@ Ask the user for:
 Search Instagram for top-performing accounts:
 
 ```
-POST /scrape { "platform": "instagram", "action": "search", "params": { "keyword": "[NICHE_KEYWORD]" } }
+POST /v1/scrape { "platform": "instagram", "action": "search", "params": { "keyword": "[NICHE_KEYWORD]" } }
 ```
 
 Collect 10-15 accounts.
@@ -37,7 +37,7 @@ Collect 10-15 accounts.
 For each top-performing post, run a breakdown:
 
 ```
-POST /analyze {
+POST /v1/analyze {
   "mediaUrl": "[POST_URL]",
   "mode": "breakdown"
 }

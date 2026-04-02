@@ -38,10 +38,16 @@ GET /v1/analytics/videos?accountId=acc_xxx
 
 Account-level health check across all managed accounts.
 
-1. Pull account-level analytics:
+1. Pull account-level analytics (cached hourly, Instagram only):
 
 ```
 GET /v1/analytics?accountId=acc_xxx
+```
+
+To force a fresh fetch:
+
+```
+POST /v1/analytics/refresh {"accountId": "acc_xxx"}
 ```
 
 2. For each account, report:

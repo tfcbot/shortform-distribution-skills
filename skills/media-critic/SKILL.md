@@ -21,8 +21,10 @@ Score content on a pass/fail basis. Catches bad hooks, visual artifacts, weak CT
 
 ```
 POST /v1/analyze {
-  "url": "[MEDIA_URL]",
-  "mode": "critic"
+  "mediaUrl": "[MEDIA_URL]",
+  "mode": "critic",
+  "mediaType": "video",
+  "context": "[OPTIONAL_CONTEXT]"
 }
 ```
 
@@ -30,24 +32,27 @@ Returns a score and list of issues. If score is below threshold, regenerate.
 
 ### Verify
 
-Check that generated content matches the intended brief. Compares the video against the original spec — did the hook land? Is the setting correct? Does the dialogue match?
+Check that generated content matches the intended description. Compares the video against the original spec — did the hook land? Is the setting correct? Does the dialogue match?
 
 ```
 POST /v1/analyze {
-  "url": "[MEDIA_URL]",
+  "mediaUrl": "[MEDIA_URL]",
   "mode": "verify",
-  "brief": "[ORIGINAL_BRIEF]"
+  "description": "[ORIGINAL_DESCRIPTION]",
+  "mediaType": "video",
+  "keyframeDescriptions": ["[SCENE_1_DESC]", "[SCENE_2_DESC]"]
 }
 ```
 
 ### Breakdown
 
-Frame-by-frame analysis of a video. Useful for debugging generation issues or understanding why a video performed well/poorly.
+Frame-by-frame analysis of a video. Useful for debugging generation issues or understanding why a video performed well/poorly. Returns async (202) with an analysis ID.
 
 ```
 POST /v1/analyze {
-  "url": "[MEDIA_URL]",
-  "mode": "breakdown"
+  "mediaUrl": "[MEDIA_URL]",
+  "mode": "breakdown",
+  "prompt": "[OPTIONAL_ANALYSIS_PROMPT]"
 }
 ```
 
