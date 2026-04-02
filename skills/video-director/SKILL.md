@@ -102,7 +102,7 @@ For each scene (max 5 retries):
 
 ### Gate 1 — STT Speech Verification
 1. Generate the scene clip (Kling 3.0 or Veo 3.1)
-2. Extract audio → transcribe via ElevenLabs STT (`POST /v1/speech-to-text`, model `scribe_v1`)
+2. Extract audio → transcribe via ElevenLabs API directly (not VidJutsu — use `ELEVENLABS_API_KEY`, model `scribe_v1`)
 3. Compare transcript word-by-word against intended `dialogue`
 4. **Auto-reject if:**
    - Missing or wrong words

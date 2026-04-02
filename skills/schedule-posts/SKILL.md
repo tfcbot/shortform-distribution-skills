@@ -23,20 +23,29 @@ Before scheduling, confirm the target account is active:
 GET /accounts?id=acc_xxx
 ```
 
-Only schedule to accounts with `status: "active"`. Never post to accounts still warming.
+Only schedule to accounts with `status: "active"`. Never post to accounts still in `creating` status.
 
 ### Step 2 — Upload Media
 
-Upload the video to CDN first:
+Upload the video to CDN. Two options:
 
+**Option A — Upload from URL** (preferred for external media):
 ```
-POST /v1/upload {
-  "file": "[VIDEO_FILE]",
-  "type": "video"
+POST /v1/upload/url {
+  "sourceUrl": "https://example.com/video.mp4",
+  "contentType": "video/mp4"
 }
 ```
 
-Returns `{ url: "https://cdn.vidjutsu.ai/..." }`.
+**Option B — Upload raw binary** (for local files):
+```
+POST /v1/upload
+Content-Type: video/mp4
+
+[raw file bytes]
+```
+
+Returns `{ id: "file_...", url: "https://...", clientId: "mc_..." }`.
 
 ### Step 3 — Write Caption
 
@@ -51,18 +60,19 @@ Generate a caption based on the video content and channel strategy:
 ```
 POST /v1/posts {
   "accountId": "acc_xxx",
-  "mediaUrl": "[CDN_URL]",
+  "videoUrl": "[CDN_URL]",
   "caption": "[CAPTION]",
-  "scheduledAt": "[ISO_TIMESTAMP]"
+  "scheduledAt": 1234567890
 }
 ```
+
+`scheduledAt` is a Unix timestamp (seconds). 36 credits per scheduled post.
 
 To create a draft without scheduling (free, 0 credits):
 
 ```
 POST /v1/posts {
-  "accountId": "acc_xxx",
-  "mediaUrl": "[CDN_URL]",
+  "videoUrl": "[CDN_URL]",
   "caption": "[CAPTION]",
   "draft": true
 }

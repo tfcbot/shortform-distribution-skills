@@ -2,7 +2,7 @@
 name: sfd-model-provider
 description: >-
   Help the user configure AI providers for the video-director pipeline. Covers video generation
-  (KIE, Wavespeed, Fal, Replicate) and audio (ElevenLabs). Walks through signup, API key setup,
+  (KIE, Wavespeed, Fal, Replicate, Higgsfield) and audio (ElevenLabs). Walks through signup, API key setup,
   and model selection.
 requires:
   env: []
@@ -84,6 +84,33 @@ export FAL_KEY=your_key_here
 ```
 
 **Models:** Check available models at [fal.ai/models](https://fal.ai/models). Filter by "video generation". Model availability changes frequently — the agent should check what's currently available.
+
+---
+
+### Higgsfield
+
+AI video and image generation platform with access to multiple models (Kling 3.0, Sora 2, Veo 3.1, WAN 2.6) through a single interface. Includes lipsync studio, motion control, and character consistency tools.
+
+1. Go to [https://higgsfield.ai](https://higgsfield.ai)
+2. Sign up and create a workspace
+3. Navigate to API settings
+4. Generate an API key
+5. Set the environment variable:
+
+```bash
+export HIGGSFIELD_API_KEY=your_key_here
+```
+
+**Models:**
+
+| Model | Best for | Notes |
+|-------|----------|-------|
+| **Kling 3.0** | Talking-head, up to 15s clips | Available through Higgsfield's unified API |
+| **Sora 2** | High-quality cinematic content | OpenAI's video model via Higgsfield |
+| **Veo 3.1** | Lifestyle, b-roll | Google's model via Higgsfield |
+| **WAN 2.6** | General purpose | Good all-rounder |
+
+Higgsfield also offers lipsync studio and motion control for character actions up to 30 seconds — useful for longer-form talking-head content.
 
 ---
 

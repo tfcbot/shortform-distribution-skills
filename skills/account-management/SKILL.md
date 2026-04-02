@@ -41,18 +41,23 @@ Ask the user for:
 POST /accounts {
   "platform": "instagram",
   "name": "[ACCOUNT_NAME]",
+  "username": "[OPTIONAL_USERNAME]",
+  "bio": "[OPTIONAL_BIO]",
+  "profilePictureUrl": "[OPTIONAL_URL]",
+  "linkInBio": "[OPTIONAL_LINK]",
+  "country": "[OPTIONAL_COUNTRY]",
   "niche": "[NICHE]"
 }
 ```
 
-Returns `{ id: "acc_xxx", status: "creating" }`.
+Returns `{ id: "acc_xxx", status: "creating", creditsCharged: 990 }`.
 
 Inform the user:
 - Account creation is handled by a US-based account manager (real person)
 - The account will warm for up to 7 days before posting starts
 - No content goes live until warming is complete
 
-### Step 3 — Monitor Warming
+### Step 3 — Monitor Status
 
 Poll account status:
 
@@ -60,7 +65,7 @@ Poll account status:
 GET /accounts?id=acc_xxx
 ```
 
-Status progression: `creating` → `warming` → `active`
+Status progression: `creating` → `active`.
 
 Update the user at each stage. Do not schedule posts until status is `active`.
 
