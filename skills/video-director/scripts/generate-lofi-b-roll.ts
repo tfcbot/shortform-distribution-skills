@@ -623,6 +623,13 @@ if (spec.music?.prompt || spec.music?.url) {
   console.log("  [MUSIC] No music specified — skipping.");
 }
 
+// Resize to exact 1080x1920 (required for Instagram Reels boosting)
+console.log("  [RESIZE] Scaling to 1080x1920...");
+const resizedPath = `${tmpDir}/resized-1080x1920.mp4`;
+await Bun.$`ffmpeg -i ${outputPath} -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:black" -c:a copy -y ${resizedPath} 2>/dev/null`;
+await Bun.$`mv ${resizedPath} ${outputPath}`;
+console.log("  [RESIZE] Done.");
+
 // Upload final
 console.log("  [UPLOAD] Uploading...");
 const finalCdnUrl = await uploadToCdn(outputPath, "video/mp4");
