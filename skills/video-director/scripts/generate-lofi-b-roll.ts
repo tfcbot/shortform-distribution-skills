@@ -493,7 +493,8 @@ for (let i = 0; i < scenes.length; i++) {
     let anatomyPassed = true;
     for (const frameIdx of frameChecks) {
       const framePath = `${tmpDir}/scene-${num}-frame-${frameIdx}.png`;
-      await Bun.$`ffmpeg -i ${rawPath} -vf select=eq(n\\,${frameIdx}) -frames:v 1 ${framePath} -y 2>/dev/null`.nothrow();
+      const ffmpegProc = Bun.spawn(["ffmpeg", "-i", rawPath, "-vf", `select=eq(n\\,${frameIdx})`, "-frames:v", "1", framePath, "-y"], { stdout: "ignore", stderr: "ignore" });
+      await ffmpegProc.exited;
       const frameUrl = await uploadToCdn(framePath, "image/png");
       if (!frameUrl) continue;
       const frameAnalysis = await runFrameAnatomy(frameUrl, scene.prompt);
