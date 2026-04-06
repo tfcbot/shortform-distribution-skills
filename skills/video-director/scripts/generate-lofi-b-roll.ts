@@ -489,7 +489,9 @@ for (let i = 0; i < scenes.length; i++) {
 
     // Frame Anatomy Gate (first — cheap, fast, catches spatial disconnects early)
     console.log("  [ANATOMY] Extracting keyframes for spatial check...");
-    const frameChecks = [0, Math.floor(5 * 30), Math.floor(9 * 30)]; // frames at ~0s, ~5s, ~9s
+    const clipDur = parseFloat(await Bun.$`ffprobe -v quiet -show_entries format=duration -of csv=p=0 ${rawPath}`.text());
+    const totalFrames = Math.floor(clipDur * 30);
+    const frameChecks = [0, Math.floor(totalFrames * 0.5), Math.max(0, totalFrames - 5)]; // start, mid, near-end
     let anatomyPassed = true;
     for (const frameIdx of frameChecks) {
       const framePath = `${tmpDir}/scene-${num}-frame-${frameIdx}.png`;
