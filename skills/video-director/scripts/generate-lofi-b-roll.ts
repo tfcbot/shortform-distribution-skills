@@ -43,9 +43,8 @@
 const KIE_API_KEY = process.env.KIE_API_KEY ?? Bun.env.KIE_API_KEY;
 const KIE_BASE = "https://api.kie.ai/api/v1";
 
-const VIDJUTSU_API_BASE = process.env.VIDJUTSU_API_BASE ?? Bun.env.VIDJUTSU_API_BASE ?? "https://effervescent-ermine-544.convex.site";
+const VIDJUTSU_API_BASE = process.env.VIDJUTSU_API_BASE ?? Bun.env.VIDJUTSU_API_BASE ?? "https://api.vidjutsu.ai";
 const VIDJUTSU_API_KEY = process.env.VIDJUTSU_API_KEY ?? Bun.env.VIDJUTSU_API_KEY;
-const VIDJUTSU_DEV_KEY = process.env.VIDJUTSU_DEV_KEY ?? Bun.env.VIDJUTSU_DEV_KEY;
 
 const MAX_RETRIES = 5;
 const SUPPORTED_MODELS = ["kling3", "veo3", "veo3fast"] as const;
@@ -189,7 +188,7 @@ async function uploadToCdn(filePath: string, contentType: string): Promise<strin
   const buffer = await Bun.file(filePath).arrayBuffer();
   const res = await fetch(`${VIDJUTSU_API_BASE}/v1/upload`, {
     method: "POST",
-    headers: { "X-Api-Key": VIDJUTSU_API_KEY, "X-Dev-Key": VIDJUTSU_DEV_KEY, "Content-Type": contentType },
+    headers: { "X-Api-Key": VIDJUTSU_API_KEY, "Content-Type": contentType },
     body: buffer,
   });
   const data = (await res.json()) as { url?: string };
@@ -207,7 +206,7 @@ interface CriticResult {
 async function runCritic(mediaUrl: string, sceneNum: number, scenePrompt: string): Promise<CriticResult> {
   const res = await fetch(`${VIDJUTSU_API_BASE}/v1/analyze`, {
     method: "POST",
-    headers: { "X-Api-Key": VIDJUTSU_API_KEY, "X-Dev-Key": VIDJUTSU_DEV_KEY, "Content-Type": "application/json" },
+    headers: { "X-Api-Key": VIDJUTSU_API_KEY, "Content-Type": "application/json" },
     body: JSON.stringify({
       mediaUrl,
       mode: "critic",
