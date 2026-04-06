@@ -120,6 +120,7 @@ async function generateKling(prompt: string, imageUrls: string[]): Promise<strin
       model: "kling-3.0/video",
       input: {
         prompt,
+        negative_prompt: "smooth plastic skin, airbrushed skin, beauty filter, floating limbs, disconnected body parts, distorted hands, extra fingers, morphing clothes",
         image_urls: imageUrls,
         sound: false,
         duration: "10",
@@ -221,8 +222,42 @@ async function runCritic(mediaUrl: string, sceneNum: number, scenePrompt: string
         `3) Lighting and environment feel authentic — not sterile or over-produced?`,
         `4) Face and body are consistent — no morphing, warping, or drift?`,
         `5) Movement is fluid — no jank, teleporting limbs, or unnatural physics?`,
-        `DO NOT penalize: natural camera motion, subject movement, casual framing, or slight blur.`,
-        `Flag issues as CRITICAL or MAJOR only for visual artifacts, identity drift, or broken physics.`,
+        `BODY PHYSICS (flag as CRITICAL if any fail):`,
+        `6) Limb-to-torso connectivity — every visible arm/leg MUST trace back to a shoulder/hip attached to a visible torso. If an arm or leg appears to float independently with no anatomical origin point, this is CRITICAL. A disembodied limb entering from offscreen with no body connection is a failure.`,
+        `7) Arms and hands — do elbows, wrists, and fingers bend at anatomically possible angles? No hyperextension, impossible rotation, or joints bending the wrong way.`,
+        `8) Spatial consistency — does the position of each limb make geometric sense relative to the torso? An arm extending from the left while the body is on the right is CRITICAL.`,
+        `9) Body proportions — do torso, arm, and hand ratios stay consistent throughout? No sudden size changes or stretching.`,
+        `10) Weight and gravity — do movements show realistic weight and inertia? Arms should not float weightlessly.`,
+        `DO NOT penalize: natural camera motion, casual framing, or slight motion blur.`,
+        `DO penalize: anatomically impossible body positions, disconnected limbs, or broken spatial relationships between body parts.`,
+        `Flag issues as CRITICAL or MAJOR for visual artifacts, identity drift, broken physics, or disconnected anatomy.`,
+      ].join(" "),
+    }),
+  });
+  return (await res.json()) as CriticResult;
+}
+
+// --- Frame Anatomy Check (spatial body connectivity on stills) ---
+
+async function runFrameAnatomy(imageUrl: string, scenePrompt: string): Promise<CriticResult> {
+  const res = await fetch(`${VIDJUTSU_API_BASE}/v1/analyze`, {
+    method: "POST",
+    headers: { "X-Api-Key": VIDJUTSU_API_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      mediaUrl: imageUrl,
+      mode: "critic",
+      mediaType: "image",
+      context: [
+        `Single frame from an AI-generated lofi b-roll video.`,
+        `Intended scene: "${scenePrompt}"`,
+        `SPATIAL ANATOMY CHECK — focus ONLY on body connectivity:`,
+        `1) Trace every visible arm from fingertips back to a shoulder. Does it connect to a visible torso? If the arm floats independently with no anatomical origin, score 3 or below — CRITICAL.`,
+        `2) Check spatial consistency: if the torso is on one side of the frame, do the limbs originate from that same body? An arm entering from the opposite side with no connection is CRITICAL.`,
+        `3) Check for disembodied body parts — hands, legs, or arms that appear without any connection to a body.`,
+        `4) Verify that the number of visible limbs is anatomically possible (max 2 arms, 2 legs).`,
+        `5) Check that joints (shoulder, elbow, wrist, knee) are positioned where they anatomically belong.`,
+        `Ignore: text rendering, background details, lighting, camera quality.`,
+        `Score 6+ ONLY if all visible body parts are spatially connected and anatomically plausible.`,
       ].join(" "),
     }),
   });
@@ -252,7 +287,7 @@ function generateASS(
   fontSize?: number,
 ): string {
   const isPortrait = videoH > videoW;
-  const safeTop = isPortrait ? Math.round(videoH * (131 / 1920)) : 0;
+  const safeTop = isPortrait ? Math.round(videoH * (250 / 1920)) : 0;
   const safeBottom = isPortrait ? Math.round(videoH * (367 / 1920)) : 0;
   const safeSide = isPortrait ? Math.round(videoW * (120 / 1080)) : 0;
 
@@ -452,7 +487,34 @@ for (let i = 0; i < scenes.length; i++) {
     await Bun.write(rawPath, await resp.arrayBuffer());
     console.log("\n  [GEN] Video ready.");
 
-    // Critic Visual Gate (tuned for b-roll — motion is good, stiffness is bad)
+    // Frame Anatomy Gate (first — cheap, fast, catches spatial disconnects early)
+    console.log("  [ANATOMY] Extracting keyframes for spatial check...");
+    const frameChecks = [0, Math.floor(5 * 30), Math.floor(9 * 30)]; // frames at ~0s, ~5s, ~9s
+    let anatomyPassed = true;
+    for (const frameIdx of frameChecks) {
+      const framePath = `${tmpDir}/scene-${num}-frame-${frameIdx}.png`;
+      await Bun.$`ffmpeg -i ${rawPath} -vf select=eq(n\\,${frameIdx}) -frames:v 1 ${framePath} -y 2>/dev/null`.nothrow();
+      const frameUrl = await uploadToCdn(framePath, "image/png");
+      if (!frameUrl) continue;
+      const frameAnalysis = await runFrameAnatomy(frameUrl, scene.prompt);
+      console.log(`  [ANATOMY] Frame ${frameIdx}: ${frameAnalysis.overallScore}/10`);
+      if (frameAnalysis.overallScore < 8) {
+        const criticals = frameAnalysis.issues.filter((i: { severity: string }) => i.severity === "critical");
+        for (const issue of criticals) {
+          console.log(`    ✗ [${issue.severity}] ${issue.description.slice(0, 120)}`);
+        }
+        anatomyPassed = false;
+        break;
+      }
+    }
+    if (!anatomyPassed) {
+      console.log("  [ANATOMY] REJECTED — spatial anatomy failure");
+      if (attempt < MAX_RETRIES) console.log(`  Regenerating...`);
+      continue;
+    }
+    console.log("  [ANATOMY] PASSED");
+
+    // Critic Visual Gate (second — full video quality, motion, lighting)
     console.log("  [CRITIC] Uploading for visual QA...");
     const cdnUrl = await uploadToCdn(rawPath, "video/mp4");
     if (!cdnUrl) { console.log("  [CRITIC] Upload failed. Retrying..."); continue; }
