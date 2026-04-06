@@ -23,9 +23,8 @@
 const ZAPCAP_BASE = "https://api.zapcap.ai";
 const DEFAULT_TEMPLATE_ID = "55267be2-9eec-4d06-aff8-edcb401b112e";
 
-const VIDJUTSU_API_BASE = process.env.VIDJUTSU_API_BASE ?? Bun.env.VIDJUTSU_API_BASE ?? "https://effervescent-ermine-544.convex.site";
+const VIDJUTSU_API_BASE = process.env.VIDJUTSU_API_BASE ?? Bun.env.VIDJUTSU_API_BASE ?? "https://api.vidjutsu.ai";
 const VIDJUTSU_API_KEY = process.env.VIDJUTSU_API_KEY ?? Bun.env.VIDJUTSU_API_KEY;
-const VIDJUTSU_DEV_KEY = process.env.VIDJUTSU_DEV_KEY ?? Bun.env.VIDJUTSU_DEV_KEY;
 
 interface CaptionOptions {
   templateId?: string;
@@ -120,7 +119,7 @@ async function uploadToCdn(filePath: string): Promise<string> {
     "X-Api-Key": VIDJUTSU_API_KEY,
     "Content-Type": "video/mp4",
   };
-  if (VIDJUTSU_DEV_KEY) headers["X-Dev-Key"] = VIDJUTSU_DEV_KEY;
+
 
   const res = await fetch(`${VIDJUTSU_API_BASE}/v1/upload`, {
     method: "POST",

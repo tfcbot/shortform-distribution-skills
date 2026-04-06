@@ -74,8 +74,7 @@ bun skills/video-captions/scripts/caption.ts overlaid.mp4 final.mp4 '{"language"
 |----------|----------|-------------|
 | `ZAPCAP_API_KEY` | Yes | ZapCap API authentication key |
 | `VIDJUTSU_API_KEY` | For local files | VidJutsu API key for CDN upload |
-| `VIDJUTSU_DEV_KEY` | For local files | VidJutsu dev key for CDN upload |
-| `VIDJUTSU_API_BASE` | No | Override API base URL |
+| `VIDJUTSU_API_BASE` | No | Override API base URL (default: `https://api.vidjutsu.ai`) |
 
 ## Prerequisites
 
