@@ -490,13 +490,14 @@ for (let i = 0; i < scenes.length; i++) {
     // Frame Anatomy Gate (first — cheap, fast, catches spatial disconnects early)
     console.log("  [ANATOMY] Extracting keyframes for spatial check...");
     const clipDur = parseFloat(await Bun.$`ffprobe -v quiet -show_entries format=duration -of csv=p=0 ${rawPath}`.text());
-    const totalFrames = Math.floor(clipDur * 30);
-    const frameChecks = [0, Math.floor(totalFrames * 0.5), Math.max(0, totalFrames - 5)]; // start, mid, near-end
+    const totalFrames = Math.floor(clipDur * 30) - 1;
+    const frameChecks = [0, Math.floor(totalFrames * 0.5), Math.max(0, totalFrames - 10)]; // start, mid, near-end
     let anatomyPassed = true;
     for (const frameIdx of frameChecks) {
       const framePath = `${tmpDir}/scene-${num}-frame-${frameIdx}.png`;
       const ffmpegProc = Bun.spawn(["ffmpeg", "-i", rawPath, "-vf", `select=eq(n\\,${frameIdx})`, "-frames:v", "1", framePath, "-y"], { stdout: "ignore", stderr: "ignore" });
       await ffmpegProc.exited;
+      if (!await Bun.file(framePath).exists()) continue;
       const frameUrl = await uploadToCdn(framePath, "image/png");
       if (!frameUrl) continue;
       const frameAnalysis = await runFrameAnatomy(frameUrl, scene.prompt);
