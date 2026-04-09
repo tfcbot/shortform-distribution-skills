@@ -39,11 +39,11 @@ Gemini watches the video and responds to a freeform prompt. Returns structured J
 **Response** (200):
 ```json
 {
-  "result": { ... }
+  "response": { ... }
 }
 ```
 
-The shape of `result` depends on your prompt. Ask for scores, lists, comparisons — Gemini follows instruction.
+The shape of `response` depends on your prompt. Ask for scores, lists, comparisons — Gemini follows instruction.
 
 ### POST /extract
 
@@ -93,15 +93,15 @@ Validate video against spec rules. 5 credits.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `mediaUrl` | string | Yes | URL of media to check |
-| `rules` | array | No | Rule IDs to check against (defaults to client's saved rules) |
+| `spec` | object | Yes | VidLang spec JSON to validate |
+| `rules` | array | No | Array of rule strings to check against (defaults to client's saved rules) |
 
 **Response** (200):
 ```json
 {
   "passed": false,
-  "violations": [
-    {"rule": "MIN_DURATION", "message": "Video is 4.2s, minimum is 5s", "severity": "error"}
+  "results": [
+    {"rule": "MIN_DURATION", "passed": false, "message": "Video is 4.2s, minimum is 5s", "location": "scene[0]", "severity": "error"}
   ]
 }
 ```
@@ -242,9 +242,91 @@ Soft-delete a post record.
 
 ---
 
+## References
+
+Pure data records for saving reference URLs (inspiration, competitor content, benchmarks). 0 credits.
+
+### POST /references
+
+Create a reference record.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `url` | string | Yes | Reference URL |
+| `platform` | string | No | Platform name (e.g. `instagram`, `tiktok`) |
+| `notes` | string | No | Free-text notes |
+| `tags` | array | No | Key-value tags (e.g. `[{"key": "niche", "value": "fitness"}]`) |
+| `metadata` | object | No | Arbitrary metadata object |
+
+**Response** (201):
+```json
+{"id": "ref_...", "status": "active"}
+```
+
+### GET /references
+
+Get a single reference or list references. Filter: `?id=ref_xxx`, `?platform=`, `?tag.key=value`.
+
+**Response** (200) — single:
+```json
+{"id": "ref_...", "url": "https://...", "platform": "instagram", "status": "active"}
+```
+
+**Response** (200) — list:
+```json
+{"data": [{"id": "ref_...", "url": "https://...", "platform": "instagram"}]}
+```
+
+### PUT /references?id=ref_xxx
+
+Update a reference record. Send only the fields to update.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `notes` | string | No | Free-text notes |
+| `tags` | array | No | Key-value tags |
+| `metadata` | object | No | Arbitrary metadata object |
+| `platform` | string | No | Platform name |
+
+**Response** (200):
+```json
+{"referenceId": "ref_...", "updated": true}
+```
+
+### DELETE /references?id=ref_xxx
+
+Soft-delete a reference record.
+
+**Response** (200):
+```json
+{"id": "ref_...", "status": "deleted"}
+```
+
+---
+
 ## Assets
 
 Pure data records for uploaded media. 0 credits.
+
+### POST /assets
+
+Create an asset record (metadata only — use /upload for binary upload).
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `url` | string | No | Asset URL |
+| `contentType` | string | No | MIME type |
+| `tags` | array | No | Key-value tags |
+| `metadata` | object | No | Arbitrary metadata object |
+
+**Response** (201):
+```json
+{"id": "asset_...", "url": "https://..."}
+```
+
+### PUT /assets?id=asset_xxx
+
+Update an asset record. Send only the fields to update.
 
 ### GET /assets
 
@@ -318,8 +400,8 @@ Credit balance and client ID.
 
 ```
 1. GET /check/rules — load your saved rules
-2. POST /check {mediaUrl: "https://...video.mp4"} — validate against rules
-3. Fix violations, regenerate if needed
+2. POST /check {spec: { ... vidlang spec JSON ... }} — validate against rules
+3. Fix failing results, regenerate if needed
 ```
 
 ### Track content with accounts and posts

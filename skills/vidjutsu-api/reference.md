@@ -25,6 +25,12 @@
 | PUT | /posts?id= | 0 | Update post record |
 | GET | /posts | 0 | List posts (?accountId=, ?tag.key=value) |
 | DELETE | /posts?id= | 0 | Soft-delete post |
+| POST | /references | 0 | Create reference record |
+| GET | /references | 0 | Get/list references (?id=, ?platform=, ?tag.key=value) |
+| PUT | /references?id= | 0 | Update reference record |
+| DELETE | /references?id= | 0 | Soft-delete reference |
+| POST | /assets | 0 | Create asset record |
+| PUT | /assets?id= | 0 | Update asset record |
 | GET | /assets | 0 | List assets |
 | GET | /assets?id= | 0 | Get single asset |
 | DELETE | /assets?id= | 0 | Soft-delete asset |
