@@ -135,7 +135,17 @@ Save per-client custom rules. 0 credits.
 
 ### POST /upload
 
-Upload media binary. Send file bytes directly with `Content-Type` header. Max 100MB. 0 credits.
+Upload media binary. Send file bytes directly with `Content-Type` header. 0 credits.
+
+**Size limits by content type:**
+
+| Media type | Max size | Allowed types |
+|------------|----------|---------------|
+| Video | 32MB | mp4, mov, webm |
+| Image | 10MB | jpeg, png, webp, gif |
+| Audio | 25MB | mp3, wav, ogg |
+
+> Videos longer than 5 minutes (300 seconds) will be rejected by `/v1/extract` and `/v1/transcribe`.
 
 **Response** (201):
 ```json
