@@ -37,3 +37,4 @@
 | POST | /credits | — | Create API key (Stripe checkout) |
 | GET | /credits/status | — | Check key status after payment |
 | GET | /balance | 0 | Credit balance |
+| POST | /subscribe | — | Start subscription ($99/mo) |
