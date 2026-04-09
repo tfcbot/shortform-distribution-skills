@@ -52,16 +52,16 @@ Server-side extraction — frames, audio, or metadata. 5 credits.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `mediaUrl` | string | Yes | URL of media to extract from |
-| `frames` | string | No | `"first"`, `"last"`, `"auto"` (key frames), or `"all"` |
+| `frames` | array or string | No | Array of integers (e.g. `[0, 75, 150]`) for specific frame indices, `"auto"` for evenly-spaced key frames, or `"last"` for the final frame. Omit for no frames. |
 | `audio` | boolean | No | Extract audio track |
 | `metadata` | boolean | No | Extract technical metadata |
 
 **Response** (200):
 ```json
 {
-  "frames": ["https://cdn.../frame_001.jpg", "https://cdn.../frame_002.jpg"],
-  "audio": "https://cdn.../audio.mp3",
-  "metadata": { "duration": 12.5, "fps": 30, "resolution": "1080x1920" }
+  "frames": [{ "index": 0, "url": "https://cdn.vidjutsu.ai/..." }, { "index": 75, "url": "https://cdn.vidjutsu.ai/..." }],
+  "audio": { "url": "https://cdn.vidjutsu.ai/...", "duration": 10.2 },
+  "metadata": { "width": 1080, "height": 1920, "fps": 30, "duration": 10.0 }
 }
 ```
 
@@ -362,6 +362,16 @@ Create an API key via Stripe checkout.
 |-------|------|----------|-------------|
 | `email` | string | No | Email for key recovery |
 | `credits` | number | No | Initial credits (default 100) |
+
+**Response** (200): Stripe checkout session URL.
+
+### POST /subscribe
+
+Create a Stripe checkout session for the $99/mo subscription. 0 credits.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `email` | string | Yes | Email for the subscription |
 
 **Response** (200): Stripe checkout session URL.
 
