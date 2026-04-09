@@ -212,7 +212,7 @@ Create a post record.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `videoId` | string | No | VidJutsu video ID |
-| `videoUrl` | string | No | Any video URL |
+| `mediaUrl` | string | No | Any media URL |
 | `caption` | string | No | Post caption |
 | `brief` | object | No | Content brief metadata |
 | `tags` | array | No | Key-value tags (e.g. `[{"key": "tier", "value": "gold"}]`) |
@@ -220,7 +220,7 @@ Create a post record.
 
 **Response** (201):
 ```json
-{"id": "post_...", "videoUrl": "https://...", "caption": "..."}
+{"id": "post_...", "mediaUrl": "https://...", "caption": "..."}
 ```
 
 ### PUT /posts?id=post_xxx
@@ -233,7 +233,7 @@ List posts. Filter: `?accountId=acc_xxx`, `?tag.key=value`.
 
 **Response** (200):
 ```json
-{"data": [{"id": "post_...", "videoUrl": "...", "caption": "...", "tags": {...}}]}
+{"data": [{"id": "post_...", "mediaUrl": "...", "caption": "...", "tags": {...}}]}
 ```
 
 ### DELETE /posts?id=post_xxx
@@ -408,6 +408,6 @@ Credit balance and client ID.
 
 ```
 1. POST /accounts {platform: "instagram", name: "fitpage", handle: "@fitpage", tags: [{"key": "tier", "value": "gold"}]}
-2. POST /posts {videoUrl: "https://...", caption: "...", accountId: "acc_...", tags: [{"key": "batch", "value": "april-2026"}]}
+2. POST /posts {mediaUrl: "https://...", caption: "...", accountId: "acc_...", tags: [{"key": "batch", "value": "april-2026"}]}
 3. GET /posts?accountId=acc_xxx
 ```
