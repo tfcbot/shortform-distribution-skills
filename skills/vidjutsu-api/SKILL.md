@@ -1,6 +1,6 @@
 ---
 name: sfd-api
-description: VidJutsu — Video Intelligence API. The feedback loop your agent is missing. Critic, breakdown, and viral scoring for AI-generated video.
+description: VidJutsu — Video Intelligence API. Watch, extract, transcribe, check. The server-side gaps your agent can't fill.
 requires:
   env:
     - VIDJUTSU_API_KEY
@@ -11,7 +11,7 @@ source: https://github.com/tfcbot/shortform-distribution-skills
 
 # VidJutsu — Video Intelligence API
 
-The feedback loop your agent is missing. Critic, breakdown, and viral scoring for AI-generated video.
+Watch, extract, transcribe, check. The server-side gaps your agent can't fill.
 
 ## Authentication
 
@@ -27,69 +27,107 @@ The feedback loop your agent is missing. Critic, breakdown, and viral scoring fo
 
 ## Video Intelligence
 
-### POST /critic
+### POST /watch
 
-Score video quality. 10 credits.
+Gemini watches the video and responds to a freeform prompt. Returns structured JSON. 10 credits.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `mediaUrl` | string | Yes | URL of media to analyze |
-| `mediaType` | string | Yes | `image` or `video` |
-| `context` | string | No | Additional context for scoring |
+| `mediaUrl` | string | Yes | URL of media to watch |
+| `prompt` | string | Yes | Freeform prompt — what to look for, how to respond |
 
 **Response** (200):
 ```json
 {
-  "score": 7.5,
-  "issues": ["Low contrast in opening frame", "Audio peaks at 0:04"],
-  "verdict": "pass"
+  "result": { ... }
 }
 ```
 
-### POST /breakdown
+The shape of `result` depends on your prompt. Ask for scores, lists, comparisons — Gemini follows instruction.
 
-Deep async video analysis. 10 credits.
+### POST /extract
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `mediaUrl` | string | Yes | URL of media to analyze |
-| `mediaType` | string | Yes | `image` or `video` |
-| `prompt` | string | No | Analysis prompt to guide breakdown |
-
-**Response** (202):
-```json
-{"id": "va_...", "status": "pending"}
-```
-
-### GET /breakdown?id=va_xxx
-
-Poll for breakdown result. Call every 5 seconds until `status` is `completed`.
-
-**Response** (200):
-```json
-{"id": "va_...", "status": "completed", "result": { ... }}
-```
-
-### POST /score
-
-Viral scoring. 10 credits.
+FFmpeg extraction — frames, audio, or metadata. 5 credits.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `mediaUrl` | string | Yes | URL of media to score |
-| `mediaType` | string | Yes | `image` or `video` |
-| `content` | string | No | Description of the content |
-| `niches` | array | No | Target niches (e.g. `["fitness", "health"]`) |
-| `type` | string | No | Content type (e.g. `"talking-head"`, `"b-roll"`) |
+| `mediaUrl` | string | Yes | URL of media to extract from |
+| `frames` | string | No | `"first"`, `"last"`, `"auto"` (key frames), or `"all"` |
+| `audio` | boolean | No | Extract audio track |
+| `metadata` | boolean | No | Extract technical metadata |
 
 **Response** (200):
 ```json
 {
-  "score": 82,
-  "breakdown": {"hook_strength": 9, "pacing": 7, "format_match": 8, "engagement_prediction": 8},
-  "suggestions": ["Stronger CTA in last 2 seconds", "Add text overlay for hook"]
+  "frames": ["https://cdn.../frame_001.jpg", "https://cdn.../frame_002.jpg"],
+  "audio": "https://cdn.../audio.mp3",
+  "metadata": { "duration": 12.5, "fps": 30, "resolution": "1080x1920" }
 }
 ```
+
+Fields returned depend on what you requested.
+
+### POST /transcribe
+
+Speech-to-text with word-level timing. 10 credits.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `mediaUrl` | string | Yes | URL of media to transcribe |
+
+**Response** (200):
+```json
+{
+  "text": "full transcript here",
+  "words": [
+    {"word": "full", "start": 0.1, "end": 0.3},
+    {"word": "transcript", "start": 0.35, "end": 0.7},
+    {"word": "here", "start": 0.75, "end": 0.9}
+  ]
+}
+```
+
+### POST /check
+
+Validate video against spec rules. 5 credits.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `mediaUrl` | string | Yes | URL of media to check |
+| `rules` | array | No | Rule IDs to check against (defaults to client's saved rules) |
+
+**Response** (200):
+```json
+{
+  "passed": false,
+  "violations": [
+    {"rule": "MIN_DURATION", "message": "Video is 4.2s, minimum is 5s", "severity": "error"}
+  ]
+}
+```
+
+### GET /check/rules
+
+Load per-client custom rules. 0 credits.
+
+**Response** (200):
+```json
+{
+  "rules": [
+    {"id": "MIN_DURATION", "params": {"min": 5}},
+    {"id": "MAX_DURATION", "params": {"max": 60}},
+    {"id": "ASPECT_RATIO", "params": {"ratio": "9:16"}}
+  ]
+}
+```
+
+### PUT /check/rules
+
+Save per-client custom rules. 0 credits.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `rules` | array | Yes | Array of rule objects with `id` and `params` |
 
 ---
 
@@ -97,7 +135,7 @@ Viral scoring. 10 credits.
 
 ### POST /upload
 
-Upload media binary. Send file bytes directly with `Content-Type` header. Max 100MB.
+Upload media binary. Send file bytes directly with `Content-Type` header. Max 100MB. 0 credits.
 
 **Response** (201):
 ```json
@@ -106,7 +144,7 @@ Upload media binary. Send file bytes directly with `Content-Type` header. Max 10
 
 ### POST /upload/url
 
-Upload from an external URL.
+Upload from an external URL. 0 credits.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -122,7 +160,7 @@ Upload from an external URL.
 
 ## Accounts
 
-Pure data records for organizing content by account. No provisioning or actions.
+Pure data records for organizing content by account. No provisioning or actions. 0 credits.
 
 ### POST /accounts
 
@@ -165,7 +203,7 @@ Soft-delete an account record.
 
 ## Posts
 
-Pure data records for tracking content. No scheduling or publishing.
+Pure data records for tracking content. No scheduling or publishing. 0 credits.
 
 ### POST /posts
 
@@ -204,6 +242,24 @@ Soft-delete a post record.
 
 ---
 
+## Assets
+
+Pure data records for uploaded media. 0 credits.
+
+### GET /assets
+
+List assets. Filter: `?tag.key=value`.
+
+### GET /assets?id=asset_xxx
+
+Get a single asset.
+
+### DELETE /assets?id=asset_xxx
+
+Soft-delete an asset.
+
+---
+
 ## Billing
 
 ### POST /api_keys
@@ -230,33 +286,46 @@ Credit balance and client ID.
 
 ## Common Workflows
 
-### Critic gate before posting
+### QA gate before posting
 
 ```
-1. POST /upload/url {sourceUrl: "https://...video.mp4"}
-2. POST /critic {mediaUrl: "https://cdn-url", mediaType: "video"}
-3. If verdict is "pass", proceed to post
+1. POST /watch {mediaUrl: "https://...video.mp4", prompt: "Score quality 1-10. List issues with severity for: face consistency, artifacts, motion, audio sync."}
+2. If score >= 8, proceed to post
 ```
 
 ### Deep analysis for content strategy
 
 ```
-1. POST /breakdown {mediaUrl: "https://...", mediaType: "video", prompt: "Break down hook, pacing, and CTA."}
-2. GET /breakdown?id=va_xxx (poll until completed)
-3. Use result to inform next video
+1. POST /watch {mediaUrl: "https://...", prompt: "Analyze this video. Return: hook text, format, pacing, transitions, CTA, tags."}
+2. Use result to inform next video
 ```
 
-### Score before distributing
+### Speech verification
 
 ```
-1. POST /score {mediaUrl: "https://...", mediaType: "video", niches: ["fitness"], type: "talking-head"}
-2. If score > 70, distribute. Otherwise iterate.
+1. POST /transcribe {mediaUrl: "https://...video.mp4"}
+2. Compare transcript word-by-word against intended dialogue
+```
+
+### Frame chaining for multi-scene videos
+
+```
+1. POST /extract {mediaUrl: "https://...scene1.mp4", frames: "last"}
+2. Use returned frame URL as starting image for next scene
+```
+
+### Spec validation
+
+```
+1. GET /check/rules — load your saved rules
+2. POST /check {mediaUrl: "https://...video.mp4"} — validate against rules
+3. Fix violations, regenerate if needed
 ```
 
 ### Track content with accounts and posts
 
 ```
-1. POST /accounts {platform: "instagram", name: "fitpage", handle: "@fitpage", tags: {"tier": "gold"}}
-2. POST /posts {videoUrl: "https://...", caption: "...", accountId: "acc_...", tags: {"batch": "april-2026"}}
+1. POST /accounts {platform: "instagram", name: "fitpage", handle: "@fitpage", tags: [{"key": "tier", "value": "gold"}]}
+2. POST /posts {videoUrl: "https://...", caption: "...", accountId: "acc_...", tags: [{"key": "batch", "value": "april-2026"}]}
 3. GET /posts?accountId=acc_xxx
 ```

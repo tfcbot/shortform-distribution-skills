@@ -1,6 +1,6 @@
 ---
 name: sfd-media-critic
-description: Analyze video and image content using critic, verify, and breakdown modes. QA gate before posting.
+description: Analyze video and image content using watch prompts for quality checks, verification, and deep analysis. QA gate before posting.
 requires:
   env:
     - VIDJUTSU_API_KEY
@@ -11,60 +11,47 @@ source: https://github.com/tfcbot/shortform-distribution-skills
 
 # Media Critic
 
-QA gate for video and image content. Three modes — use the right one for the job.
+QA gate for video and image content. One endpoint — `POST /v1/watch` — with different prompts for different jobs.
 
-## Modes
-
-### Critic
+## Quality Check
 
 Score content on a pass/fail basis. Catches bad hooks, visual artifacts, weak CTAs, and audio issues.
 
 ```
-POST /v1/critic {
+POST /v1/watch {
   "mediaUrl": "[MEDIA_URL]",
-  "mediaType": "video",
-  "context": "[OPTIONAL_CONTEXT]"
+  "prompt": "Score quality 1-10. List issues with severity for: face consistency, artifacts, motion, audio sync."
 }
 ```
 
-Returns a score and list of issues. If score is below threshold, regenerate.
+Returns structured JSON with score and issues. If score is below threshold, regenerate.
 
-### Verify
+## Verification
 
 Check that generated content matches the intended description. Compares the video against the original spec — did the hook land? Is the setting correct? Does the dialogue match?
 
-Uses the critic endpoint with verify-specific context:
-
 ```
-POST /v1/critic {
+POST /v1/watch {
   "mediaUrl": "[MEDIA_URL]",
-  "mediaType": "video",
-  "context": "Verify against spec. Description: [ORIGINAL_DESCRIPTION]. Keyframes: [SCENE_1_DESC], [SCENE_2_DESC]"
+  "prompt": "Does this video match this description: [ORIGINAL_DESCRIPTION]. Compare and list discrepancies."
 }
 ```
 
-### Breakdown
+## Deep Analysis
 
-Frame-by-frame analysis of a video. Useful for debugging generation issues or understanding why a video performed well/poorly. Returns async (202) with an analysis ID.
+Full content breakdown for strategy or debugging. Returns hook text, format classification, pacing notes, transition types, CTA analysis, and suggested tags.
 
 ```
-POST /v1/breakdown {
+POST /v1/watch {
   "mediaUrl": "[MEDIA_URL]",
-  "mediaType": "video",
-  "prompt": "[OPTIONAL_ANALYSIS_PROMPT]"
+  "prompt": "Analyze this video. Return: hook text, format, pacing, transitions, CTA, tags."
 }
-```
-
-Poll for results:
-
-```
-GET /v1/breakdown?id=va_xxx
 ```
 
 ## Key Behaviors
 
-- **Run critic on every video before posting.** No exceptions.
-- **Verify mode is optional** — use it when generation quality is inconsistent.
-- **Breakdown mode is for debugging** — don't run it on every video.
-- **If a video fails critic twice**, change the prompt or model before retrying.
-- 10 credits per analysis.
+- **Run a quality check on every video before posting.** No exceptions.
+- **Verification is optional** — use it when generation quality is inconsistent.
+- **Deep analysis is for strategy and debugging** — don't run it on every video.
+- **If a video fails quality check twice**, change the prompt or model before retrying.
+- 10 credits per watch call.

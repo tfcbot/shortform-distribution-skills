@@ -1,8 +1,8 @@
 ---
 name: sfd-video-director
 description: >-
-  Produce multi-scene AI videos with per-scene QA gates (STT speech verification + critic visual check),
-  frame chaining, audio normalization, and voice swap. Works with any format — talking-head, podcast,
+  Produce multi-scene AI videos with per-scene QA gates (watch visual check + transcribe speech verification),
+  frame chaining via extract, audio normalization, and voice swap. Works with any format — talking-head, podcast,
   b2c, dtc, fashion, yapper, or custom. The production pipeline is the same regardless of format.
 requires:
   env:
@@ -12,8 +12,8 @@ requires:
 compatibility: >-
   Requires vidlang skill for spec linting. Works with any format skill (talking-head, podcast, ugc-b2c,
   ugc-dtc, ugc-fashion, ugc-skincare, ugc-supplements, ugc-saas, ugc-mobile, ugc-lifestyle-broll,
-  ugc-yapper, or custom). Uses KIE API (Kling 3.0 or Veo 3.1), ElevenLabs (STT + STS),
-  VidJutsu API (critic + CDN upload).
+  ugc-yapper, or custom). Uses KIE API (Kling 3.0 or Veo 3.1), ElevenLabs (STS),
+  VidJutsu API (watch + extract + transcribe).
 homepage: https://github.com/tfcbot/shortform-distribution-skills
 source: https://github.com/tfcbot/shortform-distribution-skills
 ---
@@ -61,7 +61,7 @@ The scenes JSON must include for each scene:
 ```json
 {
   "prompt": "full generation prompt — adapted from your chosen format's recording brief",
-  "dialogue": "the exact intended dialogue for STT verification",
+  "dialogue": "the exact intended dialogue for speech verification",
   "sceneImageUrl": "starting frame image URL",
   "prosody": "natural speech rhythm instructions"
 }
@@ -100,31 +100,56 @@ No motion instructions in prompts. No "leans forward", "sits back", "gestures", 
 
 For each scene (max 5 retries):
 
-### Gate 1 — STT Speech Verification
+### Gate 1 — Watch Visual Check
 1. Generate the scene clip (Kling 3.0 or Veo 3.1)
-2. Extract audio → transcribe via ElevenLabs API directly (not VidJutsu — use `ELEVENLABS_API_KEY`, model `scribe_v1`)
-3. Compare transcript word-by-word against intended `dialogue`
-4. **Auto-reject if:**
-   - Missing or wrong words
-   - Repeated phrases (e.g., same 3+ word sequence appears consecutively)
-   - Audio events during speech (laughs, sighs, clicks)
-5. Peripheral noise (before first word / after last word) is logged but non-blocking
-6. Numbers normalized: "8" matches "eight", "12" matches "twelve"
-
-### Gate 2 — Critic Visual Check
-1. Upload clip to CDN
-2. Run the critic (`POST /v1/critic` — body: `{ mediaUrl, mediaType: "video", context: "..." }`)
+2. Run watch on the clip:
+   ```
+   POST /v1/watch {
+     "mediaUrl": "[CLIP_URL]",
+     "prompt": "Check this video for: face consistency, spatial anatomy, artifacts, motion quality, audio sync. Score 1-10. List issues with severity."
+   }
+   ```
 3. **Auto-reject if:**
    - Score < 8/10
    - Any major/critical issues (excluding `text_rendering` category — AI always garbles t-shirt text)
    - Face morphing, warping, or structural drift
    - Eye contact breaks
 
+### Gate 2 — Transcribe Speech Verification
+1. Transcribe the clip:
+   ```
+   POST /v1/transcribe {
+     "mediaUrl": "[CLIP_URL]"
+   }
+   ```
+2. Compare transcript word-by-word against intended `dialogue`
+3. **Auto-reject if:**
+   - Missing or wrong words
+   - Repeated phrases (e.g., same 3+ word sequence appears consecutively)
+   - Audio events during speech (laughs, sighs, clicks)
+4. Peripheral noise (before first word / after last word) is logged but non-blocking
+5. Numbers normalized: "8" matches "eight", "12" matches "twelve"
+
+### Gate 3 (optional) — Extract for Frame Inspection
+If watch flags issues but you need to see specific frames before rejecting:
+```
+POST /v1/extract {
+  "mediaUrl": "[CLIP_URL]",
+  "frames": "auto"
+}
+```
+Agent inspects the returned frame URLs to confirm or dismiss flagged issues.
+
 ### Frame Chaining
-After a scene passes both gates:
-1. Extract the last frame of the clip
-2. Upload it to CDN
-3. Use it as the starting frame for the next scene (Kling 3.0 supports 2 images in `image_urls` for first/last frame control)
+After a scene passes all gates:
+1. Extract the last frame:
+   ```
+   POST /v1/extract {
+     "mediaUrl": "[CLIP_URL]",
+     "frames": "last"
+   }
+   ```
+2. Use the returned frame URL as the starting frame for the next scene (Kling 3.0 supports 2 images in `image_urls` for first/last frame control)
 
 ---
 
@@ -136,7 +161,7 @@ After all scenes pass QA:
 2. **Loudnorm** — Two-pass FFmpeg loudnorm at -16 LUFS, normalizes volume across all scenes
 3. **Save pre-STS** — Keep a copy before voice swap for comparison
 4. **STS Voice Swap** — Single-pass ElevenLabs Speech-to-Speech on the full concatenated audio (NOT per-scene). Uses the character's `voiceId` from `character.json`
-5. **STT Final Check** — Transcribe the final video to catch any STS artifacts
+5. **STT Final Check** — Transcribe the final video via `POST /v1/transcribe` to catch any STS artifacts
 
 ---
 
@@ -152,16 +177,20 @@ The agent executes these edits with FFmpeg:
 - Shorten long silence gaps to 0.3s
 - Mute any audio artifacts at specific timestamps
 
-After editing, run STT one final time to verify the edited video is clean.
+After editing, run `POST /v1/transcribe` one final time to verify the edited video is clean.
 
 ---
 
-## Step 6: Final Critique
+## Step 6: Final Watch
 
-Run the critic on the edited final video with focus on:
-- Natural speech cadence and prosody
-- Scene-to-scene transition quality
-- Overall flow — does it feel like one conversation?
+Run watch on the edited final video with a comprehensive prompt:
+
+```
+POST /v1/watch {
+  "mediaUrl": "[FINAL_VIDEO_URL]",
+  "prompt": "Analyze this video for: natural speech cadence and prosody, scene-to-scene transition quality, overall flow — does it feel like one conversation? Score 1-10. List issues."
+}
+```
 
 Report issues and propose fixes for the next iteration.
 
@@ -169,9 +198,9 @@ Report issues and propose fixes for the next iteration.
 
 ## Key Behaviors
 
-- **STT is the hard gate for speech.** The critic is unreliable for word-level audio QA — use it for visual checks only.
+- **Transcribe is the hard gate for speech.** Watch is unreliable for word-level audio QA — use it for visual checks only.
 - **Single-pass STS produces cleaner results** than per-scene voice swap. Always do STS as the final step on the concatenated video.
 - **Ignore t-shirt text** — AI models always garble graphic tee text. It's cosmetic and viewers don't notice at mobile resolution.
 - **Peripheral noise is non-blocking** — sighs/clicks before the first word or after the last word are trimmed in post, not worth rejecting a generation.
-- **Frame chaining helps pose continuity** but doesn't guarantee expression matching. Remove motion cues from prompts (VL013) to minimize pose jumps.
+- **Frame chaining via extract helps pose continuity** but doesn't guarantee expression matching. Remove motion cues from prompts (VL013) to minimize pose jumps.
 - **Save the pre-STS version** — if STS introduces artifacts, you can re-swap with a different voice or fall back to native voice.

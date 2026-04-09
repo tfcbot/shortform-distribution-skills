@@ -205,7 +205,7 @@ interface CriticResult {
 }
 
 async function runCritic(mediaUrl: string, sceneNum: number, scenePrompt: string): Promise<CriticResult> {
-  const res = await fetch(`${VIDJUTSU_API_BASE}/v1/analyze`, {
+  const res = await fetch(`${VIDJUTSU_API_BASE}/v1/watch`, {
     method: "POST",
     headers: { "X-Api-Key": VIDJUTSU_API_KEY, "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -240,7 +240,7 @@ async function runCritic(mediaUrl: string, sceneNum: number, scenePrompt: string
 // --- Frame Anatomy Check (spatial body connectivity on stills) ---
 
 async function runFrameAnatomy(imageUrl: string, scenePrompt: string): Promise<CriticResult> {
-  const res = await fetch(`${VIDJUTSU_API_BASE}/v1/analyze`, {
+  const res = await fetch(`${VIDJUTSU_API_BASE}/v1/watch`, {
     method: "POST",
     headers: { "X-Api-Key": VIDJUTSU_API_KEY, "Content-Type": "application/json" },
     body: JSON.stringify({

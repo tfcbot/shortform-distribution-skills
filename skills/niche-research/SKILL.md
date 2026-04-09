@@ -5,14 +5,14 @@ requires:
   env:
     - SCRAPE_CREATORS_API
     - VIDJUTSU_API_KEY
-compatibility: Requires Scrape Creators API for scraping and VidJutsu API for video breakdown analysis.
+compatibility: Requires Scrape Creators API for scraping and VidJutsu API for video analysis via watch.
 homepage: https://github.com/tfcbot/shortform-distribution-skills
 source: https://github.com/tfcbot/shortform-distribution-skills
 ---
 
 # Niche Research
 
-Skill for researching niche content performance on Instagram and TikTok using Scrape Creators for data collection and VidJutsu for video breakdown analysis.
+Skill for researching niche content performance on Instagram and TikTok using Scrape Creators for data collection and VidJutsu for video analysis.
 
 ## APIs
 
@@ -21,7 +21,7 @@ Skill for researching niche content performance on Instagram and TikTok using Sc
 - **Base URL**: `https://api.scrapecreators.com`
 - **Auth header**: `x-api-key: <SCRAPE_CREATORS_API>`
 
-### VidJutsu (breakdown only)
+### VidJutsu (watch only)
 
 - **Base URL**: `https://api.vidjutsu.ai/v1`
 - **Auth header**: `X-Api-Key: <VIDJUTSU_API_KEY>`
@@ -129,29 +129,19 @@ x-api-key: <SCRAPE_CREATORS_API>
 
 ### Step 4 — Analyze Top Content
 
-For each top-performing video, run a VidJutsu breakdown:
+For each top-performing video, run a VidJutsu watch:
 
 ```
-POST https://api.vidjutsu.ai/v1/breakdown
+POST https://api.vidjutsu.ai/v1/watch
 X-Api-Key: <VIDJUTSU_API_KEY>
 
 {
   "mediaUrl": "[VIDEO_URL]",
-  "mediaType": "video",
-  "prompt": "Break down this video's hook, format, pacing, transitions, and CTA."
+  "prompt": "Analyze this video. Return: hook text, format, pacing, transitions, CTA, tags."
 }
 ```
 
-This is async. Poll for the result:
-
-```
-GET https://api.vidjutsu.ai/v1/breakdown?id=va_xxx
-X-Api-Key: <VIDJUTSU_API_KEY>
-```
-
-Poll every 5 seconds until `status` is `completed`.
-
-Extract from each breakdown:
+Extract from each analysis:
 - **Hook** — what stops the scroll in the first 1-2 seconds?
 - **Format** — talking head, b-roll, slideshow, text overlay, etc.
 - **Length** — optimal duration for this niche
@@ -173,7 +163,7 @@ Present the brief to the user. This informs all content generation.
 
 ## Key Behaviors
 
-- 10 credits per VidJutsu breakdown call
+- 10 credits per VidJutsu watch call
 - Scrape Creators calls are billed separately via Scrape Creators account
 - Always present findings before generating content
 - Look for content gaps, not just what's popular — differentiation matters

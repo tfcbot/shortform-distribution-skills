@@ -9,10 +9,12 @@
 
 | Method | Path | Credits | Description |
 |--------|------|---------|-------------|
-| POST | /critic | 10 | Score video quality |
-| POST | /breakdown | 10 | Deep async video analysis |
-| GET | /breakdown?id= | 0 | Poll breakdown result |
-| POST | /score | 10 | Viral scoring |
+| POST | /watch | 10 | Gemini watches video, freeform prompt, structured JSON |
+| POST | /extract | 5 | FFmpeg extraction: frames, audio, metadata |
+| POST | /transcribe | 10 | STT with word-level timing |
+| POST | /check | 5 | Spec validation against rules |
+| GET | /check/rules | 0 | Load per-client custom rules |
+| PUT | /check/rules | 0 | Save per-client custom rules |
 | POST | /upload | 0 | Upload media binary |
 | POST | /upload/url | 0 | Upload from external URL |
 | POST | /accounts | 0 | Create account record |
@@ -23,6 +25,9 @@
 | PUT | /posts?id= | 0 | Update post record |
 | GET | /posts | 0 | List posts (?accountId=, ?tag.key=value) |
 | DELETE | /posts?id= | 0 | Soft-delete post |
+| GET | /assets | 0 | List assets |
+| GET | /assets?id= | 0 | Get single asset |
+| DELETE | /assets?id= | 0 | Soft-delete asset |
 | POST | /api_keys | — | Create API key (Stripe checkout) |
 | GET | /api_keys/status | — | Check key status after payment |
 | GET | /balance | 0 | Credit balance |
