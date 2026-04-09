@@ -58,7 +58,7 @@ Deep async video analysis. 10 credits.
 
 **Response** (202):
 ```json
-{"id": "va_...", "status": "processing"}
+{"id": "va_...", "status": "pending"}
 ```
 
 ### GET /breakdown?id=va_xxx
@@ -86,7 +86,7 @@ Viral scoring. 10 credits.
 ```json
 {
   "score": 82,
-  "breakdown": {"hook": 9, "retention": 7, "shareability": 8},
+  "breakdown": {"hook_strength": 9, "pacing": 7, "format_match": 8, "engagement_prediction": 8},
   "suggestions": ["Stronger CTA in last 2 seconds", "Add text overlay for hook"]
 }
 ```
@@ -101,7 +101,7 @@ Upload media binary. Send file bytes directly with `Content-Type` header. Max 10
 
 **Response** (201):
 ```json
-{"id": "file_...", "url": "https://..."}
+{"assetId": "asset_...", "url": "https://..."}
 ```
 
 ### POST /upload/url
@@ -115,7 +115,7 @@ Upload from an external URL.
 
 **Response** (201):
 ```json
-{"id": "file_...", "url": "https://..."}
+{"assetId": "asset_...", "url": "https://..."}
 ```
 
 ---
@@ -137,7 +137,7 @@ Create an account record.
 | `bio` | string | No | Account biography |
 | `pfp` | string | No | Profile picture URL |
 | `linkInBio` | string | No | Link in bio URL |
-| `tags` | object | No | Key-value tags (e.g. `{"tier": "gold"}`) |
+| `tags` | array | No | Key-value tags (e.g. `[{"key": "tier", "value": "gold"}]`) |
 
 **Response** (201):
 ```json
@@ -177,7 +177,7 @@ Create a post record.
 | `videoUrl` | string | No | Any video URL |
 | `caption` | string | No | Post caption |
 | `brief` | object | No | Content brief metadata |
-| `tags` | object | No | Key-value tags |
+| `tags` | array | No | Key-value tags (e.g. `[{"key": "tier", "value": "gold"}]`) |
 | `accountId` | string | No | Associated account ID |
 
 **Response** (201):
