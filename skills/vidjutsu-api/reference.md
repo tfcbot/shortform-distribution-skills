@@ -9,8 +9,8 @@
 
 | Method | Path | Credits | Description |
 |--------|------|---------|-------------|
-| POST | /watch | 10 | Gemini watches video, freeform prompt, structured JSON |
-| POST | /extract | 5 | FFmpeg extraction: frames, audio, metadata |
+| POST | /watch | 10 | AI watches video, freeform prompt, structured JSON |
+| POST | /extract | 5 | Server-side extraction: frames, audio, metadata |
 | POST | /transcribe | 10 | STT with word-level timing |
 | POST | /check | 5 | Spec validation against rules |
 | GET | /check/rules | 0 | Load per-client custom rules |
