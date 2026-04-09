@@ -4,7 +4,7 @@ description: VidJutsu — Video Intelligence API. Watch, extract, transcribe, ch
 requires:
   env:
     - VIDJUTSU_API_KEY
-compatibility: Requires VIDJUTSU_API_KEY. Obtain via Stripe checkout at POST /v1/api_keys.
+compatibility: Requires VIDJUTSU_API_KEY. Obtain via Stripe checkout at POST /v1/credits.
 homepage: https://github.com/tfcbot/shortform-distribution-skills
 source: https://github.com/tfcbot/shortform-distribution-skills
 ---
@@ -354,7 +354,7 @@ Soft-delete an asset.
 
 ## Billing
 
-### POST /api_keys
+### POST /credits
 
 Create an API key via Stripe checkout.
 
@@ -362,11 +362,10 @@ Create an API key via Stripe checkout.
 |-------|------|----------|-------------|
 | `email` | string | No | Email for key recovery |
 | `credits` | number | No | Initial credits (default 100) |
-| `successUrl` | string | No | Redirect URL after checkout |
 
 **Response** (200): Stripe checkout session URL.
 
-### GET /api_keys/status?session=SESSION_ID
+### GET /credits/status?session=SESSION_ID
 
 Check Stripe session status and retrieve API key after payment.
 

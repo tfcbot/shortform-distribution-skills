@@ -34,6 +34,6 @@
 | GET | /assets | 0 | List assets |
 | GET | /assets?id= | 0 | Get single asset |
 | DELETE | /assets?id= | 0 | Soft-delete asset |
-| POST | /api_keys | — | Create API key (Stripe checkout) |
-| GET | /api_keys/status | — | Check key status after payment |
+| POST | /credits | — | Create API key (Stripe checkout) |
+| GET | /credits/status | — | Check key status after payment |
 | GET | /balance | 0 | Credit balance |
