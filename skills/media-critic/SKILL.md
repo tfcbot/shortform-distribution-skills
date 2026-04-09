@@ -20,9 +20,8 @@ QA gate for video and image content. Three modes — use the right one for the j
 Score content on a pass/fail basis. Catches bad hooks, visual artifacts, weak CTAs, and audio issues.
 
 ```
-POST /v1/analyze {
+POST /v1/critic {
   "mediaUrl": "[MEDIA_URL]",
-  "mode": "critic",
   "mediaType": "video",
   "context": "[OPTIONAL_CONTEXT]"
 }
@@ -34,13 +33,13 @@ Returns a score and list of issues. If score is below threshold, regenerate.
 
 Check that generated content matches the intended description. Compares the video against the original spec — did the hook land? Is the setting correct? Does the dialogue match?
 
+Uses the critic endpoint with verify-specific context:
+
 ```
-POST /v1/analyze {
+POST /v1/critic {
   "mediaUrl": "[MEDIA_URL]",
-  "mode": "verify",
-  "description": "[ORIGINAL_DESCRIPTION]",
   "mediaType": "video",
-  "keyframeDescriptions": ["[SCENE_1_DESC]", "[SCENE_2_DESC]"]
+  "context": "Verify against spec. Description: [ORIGINAL_DESCRIPTION]. Keyframes: [SCENE_1_DESC], [SCENE_2_DESC]"
 }
 ```
 
@@ -49,11 +48,17 @@ POST /v1/analyze {
 Frame-by-frame analysis of a video. Useful for debugging generation issues or understanding why a video performed well/poorly. Returns async (202) with an analysis ID.
 
 ```
-POST /v1/analyze {
+POST /v1/breakdown {
   "mediaUrl": "[MEDIA_URL]",
-  "mode": "breakdown",
+  "mediaType": "video",
   "prompt": "[OPTIONAL_ANALYSIS_PROMPT]"
 }
+```
+
+Poll for results:
+
+```
+GET /v1/breakdown?id=va_xxx
 ```
 
 ## Key Behaviors

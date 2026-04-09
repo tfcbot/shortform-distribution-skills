@@ -113,7 +113,7 @@ For each scene (max 5 retries):
 
 ### Gate 2 — Critic Visual Check
 1. Upload clip to CDN
-2. Run the critic (`POST /v1/analyze`, mode `critic`)
+2. Run the critic (`POST /v1/critic` — body: `{ mediaUrl, mediaType: "video", context: "..." }`)
 3. **Auto-reject if:**
    - Score < 8/10
    - Any major/critical issues (excluding `text_rendering` category — AI always garbles t-shirt text)

@@ -1,97 +1,93 @@
 ---
 name: sfd-account-management
-description: Provision, warm, and manage rapid-scale growth accounts for shortform content via VidJutsu. Walk the user through account creation, warming, and monitoring.
+description: Connect and manage Instagram accounts for shortform content distribution via Zernio. Walk the user through connecting accounts and verifying status.
 requires:
   env:
-    - VIDJUTSU_API_KEY
-compatibility: Requires vidjutsu-api skill for endpoint reference.
+    - ZERNIO_API_KEY
 homepage: https://github.com/tfcbot/shortform-distribution-skills
 source: https://github.com/tfcbot/shortform-distribution-skills
 ---
 
 # Account Management
 
-Managed accounts are not your personal accounts. They are rapid-scale growth channels — provisioned, warmed up, and posting within 7 days. You don't log into them or manage them directly. This protects your main presence from shadowbans and algorithm penalties that come with aggressive posting schedules while giving you dedicated distribution channels for your content.
-
-Account provisioning is handled by [VidJutsu](https://docs.vidjutsu.ai) — full end-to-end managed accounts with US-based account managers, built-in analytics, and link-in-bio monetization.
+Managed accounts are distribution channels you connect through [Zernio](https://zernio.com) for shortform content posting. You connect your existing Instagram accounts via Zernio's dashboard, then use the API to verify they're linked and ready for scheduling.
 
 ## Setup
 
-Requires `VIDJUTSU_API_KEY` — get one at [docs.vidjutsu.ai/quickstart](https://docs.vidjutsu.ai/quickstart).
+Requires `ZERNIO_API_KEY` — get one from your Zernio dashboard.
 
 ```bash
-export VIDJUTSU_API_KEY=your_key_here
+export ZERNIO_API_KEY=your_key_here
 ```
 
-API reference: See [vidjutsu-api/SKILL.md](../vidjutsu-api/SKILL.md) for full endpoint docs.
+Base URL: `https://zernio.com/api/v1`
+Auth header: `Authorization: Bearer $ZERNIO_API_KEY`
 
 ## Walkthrough
 
-### Step 1 — Collect Information
+### Step 1 — Connect Account via Zernio Dashboard
 
-Ask the user for:
-- **Platform** — `instagram` or `tiktok`
-- **Niche** — what space will this account operate in?
-- **Account name** — preferred handle or name
-- **Number of accounts** — how many do they need? (max 3 per user)
+Direct the user to connect their Instagram account through Zernio's web dashboard:
 
-### Step 2 — Provision Account
+1. Go to [zernio.com](https://zernio.com) and log in.
+2. Navigate to the accounts/connections section.
+3. Follow the OAuth flow to connect an Instagram account.
 
-```
-POST /accounts {
-  "platform": "instagram",
-  "name": "[ACCOUNT_NAME]",
-  "username": "[OPTIONAL_USERNAME]",
-  "bio": "[OPTIONAL_BIO]",
-  "profilePictureUrl": "[OPTIONAL_URL]",
-  "linkInBio": "[OPTIONAL_LINK]",
-  "country": "[OPTIONAL_COUNTRY]",
-  "niche": "[NICHE]"
-}
-```
+Zernio handles the Instagram authentication — there is no API endpoint to provision or create accounts. All account connections happen through the dashboard.
 
-Returns `{ id: "acc_xxx", status: "creating", creditsCharged: 990 }`.
+### Step 2 — Verify Connection
 
-Inform the user:
-- Account creation is handled by a US-based account manager (real person)
-- The account will warm for up to 7 days before posting starts
-- No content goes live until warming is complete
-
-### Step 3 — Monitor Status
-
-Poll account status:
-
-```
-GET /accounts?id=acc_xxx
-```
-
-Status progression: `creating` → `active`.
-
-Update the user at each stage. Do not schedule posts until status is `active`.
-
-### Step 4 — Account Health
-
-Monitor for issues:
-- **Engagement drops** — may indicate algorithm penalties
-- **Account restrictions** — content policy violations
-
-### Step 5 — Multiple Accounts
-
-For Scale plan users (up to 3 accounts):
-- Each account can target a different niche
-- Each account can point to a different link
-- Provision accounts sequentially — don't create all at once
+Once the user says they've connected, verify via the API:
 
 ```
 GET /accounts
+Authorization: Bearer $ZERNIO_API_KEY
 ```
 
-Lists all accounts with their status and platform.
+Returns an array of connected accounts:
+
+```json
+{
+  "accounts": [
+    {
+      "_id": "abc123",
+      "platform": "instagram",
+      "handle": "@example",
+      ...
+    }
+  ]
+}
+```
+
+Confirm the expected account appears in the list. Note the `_id` — you'll need it when scheduling posts.
+
+### Step 3 — Account Health
+
+Monitor connected accounts for issues:
+- **Disconnected accounts** — OAuth tokens can expire. If a post fails, have the user re-authorize via the Zernio dashboard.
+- **Engagement drops** — may indicate algorithm penalties from posting cadence.
+- **Account restrictions** — content policy violations on the platform side.
+
+### Step 4 — Multiple Accounts
+
+Users can connect multiple Instagram accounts through the Zernio dashboard. Each account appears in the `GET /accounts` response.
+
+```
+GET /accounts
+Authorization: Bearer $ZERNIO_API_KEY
+```
+
+Lists all connected accounts with their platform and handle.
+
+For multi-account strategies:
+- Each account can target a different niche.
+- Each account can have its own posting cadence.
+- Connect accounts one at a time and verify each before moving on.
 
 ## Key Behaviors
 
-- 990 credits per account — covers provisioning, warming, and ongoing management
-- Maximum 3 accounts per user
-- Never schedule posts to an account that isn't `active`
-- Accounts are managed by real people — these are not bot accounts
-- Accounts are provisioned fresh — you cannot connect existing accounts
+- **Accounts are connected via the Zernio dashboard** — not provisioned via API.
+- **Always verify connection with `GET /accounts`** before attempting to schedule posts.
+- **If an account disappears from the list**, the user needs to re-authorize through the dashboard.
+- **Never schedule posts to an account that isn't showing in `GET /accounts`.**
+- **Zernio handles billing separately** — there is no per-account credit charge through the API.
