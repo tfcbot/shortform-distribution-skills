@@ -29,7 +29,7 @@ Watch, extract, transcribe, check. The server-side gaps your agent can't fill.
 
 ### POST /watch
 
-Gemini watches the video and responds to a freeform prompt. Returns structured JSON. 10 credits.
+AI watches the video and responds to a freeform prompt. Returns structured JSON. 10 credits.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -43,11 +43,11 @@ Gemini watches the video and responds to a freeform prompt. Returns structured J
 }
 ```
 
-The shape of `response` depends on your prompt. Ask for scores, lists, comparisons — Gemini follows instruction.
+The shape of `response` depends on your prompt. Ask for scores, lists, comparisons — AI follows instruction.
 
 ### POST /extract
 
-FFmpeg extraction — frames, audio, or metadata. 5 credits.
+Server-side extraction — frames, audio, or metadata. 5 credits.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
