@@ -1,6 +1,6 @@
 # vidjutsu-api
 
-Call the VidJutsu API to manage Instagram accounts, schedule posts, scrape niche content, and analyze media.
+Call the VidJutsu API to watch, extract, transcribe, and check media. Store accounts, posts, assets, and references.
 
 ## Files
 
