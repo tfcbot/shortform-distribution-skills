@@ -24,7 +24,7 @@ Skill for researching niche content performance on Instagram and TikTok using Sc
 ### VidJutsu (watch only)
 
 - **Base URL**: `https://api.vidjutsu.ai/v1`
-- **Auth header**: `X-Api-Key: <VIDJUTSU_API_KEY>`
+- **Auth header**: `Authorization: Bearer <VIDJUTSU_API_KEY>`
 
 ---
 
@@ -133,7 +133,7 @@ For each top-performing video, run a VidJutsu watch:
 
 ```
 POST https://api.vidjutsu.ai/v1/watch
-X-Api-Key: <VIDJUTSU_API_KEY>
+Authorization: Bearer <VIDJUTSU_API_KEY>
 
 {
   "mediaUrl": "[VIDEO_URL]",

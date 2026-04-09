@@ -16,7 +16,7 @@ Watch, extract, transcribe, check. The server-side gaps your agent can't fill.
 ## Authentication
 
 - **Environment variable**: `VIDJUTSU_API_KEY`
-- **Header**: `X-Api-Key: <VIDJUTSU_API_KEY>`
+- **Header**: `Authorization: Bearer <VIDJUTSU_API_KEY>`
 - If the key is missing, inform the user they must set it.
 
 ## Base URL

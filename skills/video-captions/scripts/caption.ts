@@ -116,7 +116,7 @@ async function uploadToCdn(filePath: string): Promise<string> {
   }
   const buffer = await Bun.file(filePath).arrayBuffer();
   const headers: Record<string, string> = {
-    "X-Api-Key": VIDJUTSU_API_KEY,
+    "Authorization": `Bearer ${VIDJUTSU_API_KEY}`,
     "Content-Type": "video/mp4",
   };
 

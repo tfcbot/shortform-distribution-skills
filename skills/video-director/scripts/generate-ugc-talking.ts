@@ -81,7 +81,7 @@ async function uploadToCdn(filePath: string, contentType: string): Promise<strin
   const buffer = await Bun.file(filePath).arrayBuffer();
   const res = await fetch(`${VIDJUTSU_API_BASE}/v1/upload`, {
     method: "POST",
-    headers: { "X-Api-Key": VIDJUTSU_API_KEY, "Content-Type": contentType },
+    headers: { "Authorization": `Bearer ${VIDJUTSU_API_KEY}`, "Content-Type": contentType },
     body: buffer,
   });
   const data = (await res.json()) as { url?: string };
@@ -179,7 +179,7 @@ interface CriticResult {
 async function runFrameAnatomy(imageUrl: string, scenePrompt: string): Promise<CriticResult> {
   const res = await fetch(`${VIDJUTSU_API_BASE}/v1/watch`, {
     method: "POST",
-    headers: { "X-Api-Key": VIDJUTSU_API_KEY, "Content-Type": "application/json" },
+    headers: { "Authorization": `Bearer ${VIDJUTSU_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       mediaUrl: imageUrl,
       mode: "critic",
@@ -206,7 +206,7 @@ async function runFrameAnatomy(imageUrl: string, scenePrompt: string): Promise<C
 async function runCritic(mediaUrl: string, scenePrompt: string): Promise<CriticResult> {
   const res = await fetch(`${VIDJUTSU_API_BASE}/v1/watch`, {
     method: "POST",
-    headers: { "X-Api-Key": VIDJUTSU_API_KEY, "Content-Type": "application/json" },
+    headers: { "Authorization": `Bearer ${VIDJUTSU_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       mediaUrl,
       mode: "critic",

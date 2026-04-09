@@ -2,7 +2,7 @@
 
 ## Auth
 
-- Header: `X-Api-Key: <VIDJUTSU_API_KEY>`
+- Header: `Authorization: Bearer <VIDJUTSU_API_KEY>`
 - Base URL: `https://api.vidjutsu.ai/v1`
 
 ## Endpoints
