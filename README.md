@@ -1,54 +1,62 @@
-<h1 align="center">Shortform Distribution Skills</h1>
+<h1 align="center">Agent Video Team</h1>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License"></a>
 </p>
 
-Agent skills for distributing shortform video content at scale.
+Claude Code skills for AI video production. Install the team, write prompts, generate videos, QA your output, and publish — all through slash commands.
 
 ## Install
 
 ```bash
-npx skills add tfcbot/shortform-distribution-skills
+npx skills add tfcbot/agent-video-team
 ```
 
 ## Skills
 
-Each skill does one thing well. Compose them to build your pipeline.
+### Direct
+
+| Skill | What it does |
+|-------|-------------|
+| [prompt-writer](skills/prompt-writer/) | Turn a video idea into model-ready shot-by-shot prompts. Model-specific structure for Seedance 2, Sora 2, and Kling 3.0. |
+| [director](skills/director/) | Orchestrate the full production pipeline — chains frame gen, clip gen, QA, and post-production. |
+| [director-frame-gen](skills/director-frame-gen/) | Generate start/end frames for scenes with character identity lock. |
+| [director-clip-gen](skills/director-clip-gen/) | Generate video clips from frames using Sora 2, Seedance 2, or Kling 3.0. |
+
+### QA
+
+| Skill | What it does |
+|-------|-------------|
+| [director-qa](skills/director-qa/) | Run QA gates — anatomy check, visual critic, speech verification. Auto-retry failed scenes. |
+| [critic](skills/critic/) | Evaluate video/image quality via VidJutsu `/v1/watch`. Score, verify, and deep analyze. |
+
+### Edit
+
+| Skill | What it does |
+|-------|-------------|
+| [editor-post-production](skills/editor-post-production/) | Concat, loudnorm, STS voice swap, overlay, music, resize, upload. |
+| [editor-overlay](skills/editor-overlay/) | Burn text overlays onto videos via VidJutsu API. TikTok-safe zones. |
+| [editor-captions](skills/editor-captions/) | Add animated captions via ZapCap API. |
 
 ### Plan
 
 | Skill | What it does |
 |-------|-------------|
-| [channel-strategy](skills/channel-strategy/) | Create a one-page channel spec — character, handle, format, niche, and 30-day content calendar. |
-| [niche-research](skills/niche-research/) | Scrape top-performing accounts and analyze winning hooks and formats. |
+| [researcher](skills/researcher/) | Scrape top-performing content on Instagram and TikTok. Build a research brief. |
+| [strategist](skills/strategist/) | Create a channel spec — character, handle, format, and 30-day content calendar. |
 
-### Produce
-
-| Skill | What it does |
-|-------|-------------|
-| [model-provider](skills/model-provider/) | Configure video generation (KIE, Wavespeed, Fal, Replicate) and audio (ElevenLabs). |
-| [video-director](skills/video-director/) | Multi-scene AI video production with per-scene QA, frame chaining, and voice swap. |
-| [media-critic](skills/media-critic/) | Critic, verify, and breakdown modes for video QA. |
-
-### Distribute
+### Publish
 
 | Skill | What it does |
 |-------|-------------|
-| [account-management](skills/account-management/) | Provision rapid-scale growth accounts via VidJutsu. Warming, posting, link-in-bio. |
-| [schedule-posts](skills/schedule-posts/) | Schedule content to managed accounts with optimized timing and captions. |
+| [publisher](skills/publisher/) | Schedule content to connected accounts via Zernio. |
+| [publisher-analytics](skills/publisher-analytics/) | Pull performance data — content audit, engagement report, growth trends. |
 
-### Reporting
+### Config
 
 | Skill | What it does |
 |-------|-------------|
-| [analytics](skills/analytics/) | Pull performance data across accounts — content audit, engagement report, growth trends. |
-
-## Managed accounts
-
-Managed accounts are not your personal accounts. They are rapid-scale growth channels — provisioned, warmed up, and posting within 7 days. You don't log into them or manage them directly. This protects your main presence from shadowbans and algorithm penalties that come with aggressive posting schedules.
-
-Account provisioning powered by [VidJutsu](https://docs.vidjutsu.ai).
+| [model-provider](skills/model-provider/) | Configure video generation (Sora 2, Seedance 2, Kling 3.0) and audio (ElevenLabs). |
 
 ## License
 

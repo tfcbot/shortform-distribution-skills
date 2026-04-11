@@ -1,6 +1,6 @@
 # model-provider
 
-Configure AI providers for the video-director pipeline. Video generation (KIE, Wavespeed, Fal, or Replicate) and audio (ElevenLabs).
+Configure AI providers for the director pipeline. Video generation (Sora 2, Seedance 2, Kling 3.0) and audio (ElevenLabs).
 
 ## Files
 
@@ -9,5 +9,5 @@ Configure AI providers for the video-director pipeline. Video generation (KIE, W
 ## Install
 
 ```bash
-npx skills add tfcbot/shortform-distribution-skills
+npx skills add tfcbot/agent-video-team
 ```
