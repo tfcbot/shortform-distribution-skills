@@ -31,7 +31,7 @@ POST https://api.kie.ai/api/v1/jobs/createTask
 {
   "model": "kling-3.0/video",
   "input": {
-    "prompt": "<character.promptBase>, <scene.prompt>",
+    "prompt": "<scene.prompt>",
     "negative_prompt": "smooth plastic skin, airbrushed skin, beauty filter, floating limbs, disconnected body parts, distorted hands, extra fingers, morphing clothes",
     "image_urls": ["<startFrameUrl>", "<endFrameUrl (if exists)>"],
     "sound": <true or false based on format config>,
@@ -47,7 +47,7 @@ Poll `GET /jobs/recordInfo?taskId=<taskId>` every 15s until `state` is `"success
 
 ## Sora 2 / Seedance 2
 
-Refer to the provider's API documentation for endpoint details. The pipeline is the same — send a prompt and reference image, get a clip URL back. The QA gates in `/director-qa` work identically regardless of which model generated the clip.
+Refer to the provider's API documentation for endpoint details. The pipeline is the same — send a scene prompt and start frame, get a clip URL back. The start image carries character identity — do not prepend `promptBase` to the scene prompt. The QA gates in `/director-qa` work identically regardless of which model generated the clip.
 
 ## Output
 
