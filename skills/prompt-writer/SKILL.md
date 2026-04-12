@@ -111,7 +111,7 @@ Dialogue: (if applicable)
 
 **Structure:** Concise, direct description. Kling prefers shorter prompts than Seedance or Sora.
 
-**Prompt:** `<character.promptBase>, <scene description>`
+**Prompt:** `<scene description>` (promptBase is NOT included — the start image already carries character identity)
 
 **Negative prompt (always include):**
 ```
@@ -130,7 +130,7 @@ Add scene-specific negatives as needed: "no text on screen", "no rapid camera mo
 - **Prosody (VL011):** Include speech rhythm in the prompt — "casual pace, don't stress any single word, conversational"
 - **No ALL CAPS in dialogue (VL012):** AI interprets caps as shouting
 - Concise prompts preferred — 30-60 words is the sweet spot for Kling
-- The `promptBase` from character.json gets prepended, so don't repeat character description
+- `promptBase` is NOT used during clip generation — the start image already locks the character. promptBase is only for generating new start images via `/director-frame-gen`
 
 **Example:**
 > Sitting at a sunlit desk with a laptop and iced coffee, speaking directly to camera with a relaxed expression. Morning light from a window to the left. Static camera, medium close-up.
@@ -159,20 +159,20 @@ One movement per scene. Two movements in one prompt confuse all three models.
 ## Character Consistency
 
 ### Seedance 2
-- Include physical description in every prompt — hair, skin, wardrobe, accessories
-- Use reference files (up to 12) as the primary consistency mechanism
-- Repeat wardrobe details across scenes — "cream knit sweater" in every prompt, not just the first
+- Use reference files (up to 12) and start images as the primary consistency mechanism
+- `promptBase` is used when generating start images, not during clip generation — the start image carries identity
+- Scene prompts focus on action, camera, and environment
 
 ### Sora 2
 - Upload reference clips (2-4s, 720p-1080p) via Characters API
 - Reference up to 2 characters per generation using their IDs
-- Use consistent phrasing across shots — same adjectives, same wardrobe language
+- Start images lock the character — scene prompts describe what happens, not who's in frame
 - Avoid competing traits ("confident yet shy")
 
 ### Kling 3.0
-- `image_urls` with reference sheet is the primary lock
-- `promptBase` from character.json handles identity — don't re-describe in every scene prompt
-- Add wardrobe-specific details only when the outfit changes between scenes
+- `image_urls` with the start frame is the primary lock — the character's face and wardrobe are already in the image
+- `promptBase` is only used when generating new start images via `/director-frame-gen`, not during clip generation
+- Scene prompts describe action, camera, and environment — not the character
 
 **General rule:** Anchor to concrete visual details (hair color, specific clothing items, accessories) not abstract traits ("confident", "energetic").
 

@@ -1,6 +1,6 @@
 # model-provider
 
-Configure AI providers for the director pipeline. Video generation (Sora 2, Seedance 2, Kling 3.0) and audio (ElevenLabs).
+Configure AI providers for the director pipeline. Video providers (Wavespeed, KIE), models (Sora 2, Seedance 2, Kling 3.0), and audio (ElevenLabs).
 
 ## Files
 

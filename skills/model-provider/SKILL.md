@@ -1,9 +1,9 @@
 ---
 name: model-provider
 description: >-
-  Help the user configure AI providers for the director pipeline. Covers video generation
-  (Sora 2, Seedance 2, Kling 3.0) and audio (ElevenLabs). Walks through signup, API key setup,
-  and model selection.
+  Help the user configure AI providers for the director pipeline. Covers video providers
+  (Wavespeed, KIE) and models (Sora 2, Seedance 2, Kling 3.0), plus audio (ElevenLabs).
+  Walks through signup, API key setup, and model selection.
 requires:
   env: []
 compatibility: >-
@@ -14,48 +14,51 @@ source: https://github.com/tfcbot/agent-video-team
 
 # Model Provider
 
-Configure AI providers for the director pipeline. You need **ElevenLabs** for audio (when speech is involved) and one **video generation** model.
+Configure AI providers for the director pipeline. You need a **video provider** + **model**, and **ElevenLabs** for audio (when speech is involved).
 
 ---
 
-## Video Generation Models
+## Video Providers
 
-Three supported models. If the user has no preference, recommend **Sora 2**.
+Providers are the APIs you call. Models are what generate the video. One provider can host many models.
 
-### Sora 2 (Recommended)
+### Wavespeed (Recommended)
 
-OpenAI's video generation model. High quality, strong motion understanding.
+Aggregator API that hosts models from multiple vendors — Sora 2, Seedance 2, Kling 3.0, Veo 3, and more. If the user has no preference, recommend **Wavespeed**.
 
-| Model | Best for | Notes |
-|-------|----------|-------|
-| **Sora 2** | All formats | Recommended default, high quality output |
+1. Go to [https://wavespeed.ai/accesskey](https://wavespeed.ai/accesskey)
+2. Create an account and generate an API key
+3. Set the environment variable:
 
-### Seedance 2
+```bash
+export WAVESPEED_API_KEY=your_key_here
+```
 
-Strong cinematic quality, good prompt adherence. Supports reference images for character consistency.
+**API base:** `https://api.wavespeed.ai/api/v3`
 
-| Model | Best for | Notes |
-|-------|----------|-------|
-| **Seedance 2** | All formats | Good alternative, strong prompt following |
+### KIE
 
-### Kling 3.0
-
-Reliable workhorse. Fewer retries, cleaner audio on speech content.
-
-| Model | Best for | Notes |
-|-------|----------|-------|
-| **Kling 3.0** | All formats | Reliable fallback, accessible via KIE API |
-
-Available via KIE API:
+Alternative provider. Hosts Kling models and Sora 2.
 
 1. Go to [https://docs.kie.ai/](https://docs.kie.ai/)
-2. Create an account and navigate to the API section
-3. Generate an API key from the dashboard
-4. Set the environment variable:
+2. Create an account and generate an API key
+3. Set the environment variable:
 
 ```bash
 export KIE_API_KEY=your_key_here
 ```
+
+---
+
+## Video Models
+
+Three supported models. All available through **Wavespeed**. Kling and Sora 2 also available through **KIE** as a fallback.
+
+| Model | Provider(s) | Best for | Notes |
+|-------|-------------|----------|-------|
+| **Sora 2** | Wavespeed, KIE | All formats | High quality, strong motion understanding |
+| **Seedance 2** | Wavespeed | All formats | Strong cinematic quality, good prompt adherence |
+| **Kling 3.0** | Wavespeed, KIE | All formats | Reliable workhorse, fewer retries |
 
 ---
 
@@ -89,6 +92,6 @@ export ELEVENLABS_API_KEY=your_key_here
 ## Key Behaviors
 
 - **ElevenLabs is only required when the video has speech.** Silent/overlay-only videos skip it.
-- **Ask the user which video model they prefer.** Default to Sora 2 if no preference.
+- **Ask the user which video model they prefer.** Default to Sora 2 via Wavespeed if no preference.
 - **The director pipeline works the same regardless of model.** The agent sends a prompt, gets a clip, runs QA.
 - **If a model consistently fails QA gates**, suggest switching models before burning more credits.
